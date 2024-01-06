@@ -1,7 +1,7 @@
 import os
 import json
 import numpy as np
-import gltf2 as gltf
+from . import gltf2 as gltf
 
 ATTRIBUTE_BY_NAME = {
     "position": gltf.Attribute.POSITION,
@@ -100,6 +100,11 @@ def generate_array_buffer_view(data, buffer, target, offset=None, name=None):
 
 def byteLength(buffers):
     return sum(map(lambda buffer: buffer.nbytes, buffers))
+
+
+def normalize_vector(vector):
+    norm = np.linalg.norm(vector)
+    return vector / norm if norm != 0 else vector
 
 
 def numpy_to_gltf(vertex_data, index_data, gltf_path, bin_path):
