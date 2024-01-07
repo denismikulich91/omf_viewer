@@ -107,7 +107,42 @@ def normalize_vector(vector):
     return vector / norm if norm != 0 else vector
 
 
-def numpy_to_gltf(vertex_data, index_data, gltf_path, bin_path):
+def cross_product(v1, v2):
+    return (v1[1] * v2[2] - v1[2] * v2[1],
+            v1[2] * v2[0] - v1[0] * v2[2],
+            v1[0] * v2[1] - v1[1] * v2[0])
+
+
+def calculate_normals(vertices, indices):
+    normals = np.zeros_like(vertices)
+
+    for i in range(0, len(indices), 3):
+        idx1, idx2, idx3 = indices[i], indices[i + 1], indices[i + 2]
+        v1 = vertices[idx1]
+        v2 = vertices[idx2]
+        v3 = vertices[idx3]
+
+        # Calculate vectors for two edges of the triangle
+        edge1 = np.subtract(v2, v1)
+        edge2 = np.subtract(v3, v1)
+
+        # Calculate normal for the triangle
+        normal = cross_product(edge1, edge2)
+        normal = normalize_vector(normal)
+
+        # Add the normal to each vertex of the triangle
+        normals[idx1] += normal
+        normals[idx2] += normal
+        normals[idx3] += normal
+
+    # Normalize the normals
+    for i in range(len(normals)):
+        normals[i] = normalize_vector(normals[i])
+
+    return normals
+
+
+def numpy_to_gltf(vertex_data, index_data, gltf_path, bin_path, data_type):
     mesh = gltf.Mesh([], name="Default Mesh")
 
     document = gltf.Document.from_mesh(mesh)
@@ -129,7 +164,7 @@ def numpy_to_gltf(vertex_data, index_data, gltf_path, bin_path):
     vertex_accessors = generate_structured_array_accessors(vertex_data, vertex_buffer_views, name="{key} Accessor")
     index_accessor = generate_array_accessor(index_data, index_buffer_view, name="Index Accessor")
 
-    primitive = gltf.Primitive(vertex_accessors, index_accessor, None, gltf.PrimitiveMode.TRIANGLES)
+    primitive = gltf.Primitive(vertex_accessors, index_accessor, None, gltf.PrimitiveMode[data_type])
 
     document.add_buffer_views(vertex_buffer_views.values())
     document.add_buffer_view(index_buffer_view)

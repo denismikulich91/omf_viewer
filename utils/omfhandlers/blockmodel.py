@@ -18,7 +18,7 @@ class BlockModelHandler:
             pformat(self.get_bm_info, depth=3, indent=1, compact=True, width=250)
 
     @property
-    def get_bm_attributes_name(self) -> list:
+    def get_bm_attributes_list(self) -> list:
         return [attr.name for attr in self.bm.attributes]
 
     @property
@@ -32,6 +32,13 @@ class BlockModelHandler:
     def _prepare_gltf_data(self, x_size, y_size, z_size, x, y, z, indices_offset, grade):
         if not self.is_compact:
             buffer_array_size = 24
+            # v6----------v5
+            # /|          /|
+            # v1---------v0|
+            # | |        | |
+            # | |v7------|-|v4
+            # |/         |/
+            # v2---------v3
             vertexes = [
                 # v0-v1-v2-v3 front
                 (x + x_size, y, z + z_size), (x, y, z + z_size), (x, y, z), (x + x_size, y, z),
@@ -67,6 +74,13 @@ class BlockModelHandler:
             ]
         else:
             buffer_array_size = 8
+            # v6----------v5
+            # /|          /|
+            # v1---------v0|
+            # | |        | |
+            # | |v7------|-|v4
+            # |/         |/
+            # v2---------v3
             vertexes = [
                 (x, y, z),  # 0 Bottom-front-left
                 (x + x_size, y, z),  # 1 Bottom-front-right
@@ -118,13 +132,7 @@ class BlockModelHandler:
             ("normal", np.float32, 3),
             ("color", np.float32, 4),
         ])
-        # v6----------v5
-        # /|          /|
-        # v1---------v0|
-        # | |        | |
-        # | |v7------|-|v4
-        # |/         |/
-        # v2---------v3
+
         vertex_data["position"] = vertexes
         vertex_data["normal"] = normals
         index_data = np.array(indexes, dtype=np.uint16) + indices_offset * buffer_array_size
@@ -154,10 +162,13 @@ class BlockModelHandler:
         gltf_path = f"{location}.gltf"
         bin_path = f"{location}.bin"
 
-        document, buffers = gltf.numpy_to_gltf(final_vertex_data, final_index_data, gltf_path, bin_path)
+        document, buffers = gltf.numpy_to_gltf(final_vertex_data,
+                                               final_index_data,
+                                               gltf_path,
+                                               bin_path,
+                                               "TRIANGLES")
 
         gltf.save(gltf_path, bin_path, document, buffers)
-
 
     def set_color(self, grade):
         if grade < 2.5:
