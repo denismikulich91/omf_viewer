@@ -1,14 +1,12 @@
 from pprint import pformat
-import pandas as pd
 import numpy as np
 import utils.pygltf.tools as gltf
 
 
 class SurfaceHandler:
-    def __init__(self, surface, compact=False) -> None:
+    def __init__(self, surface) -> None:
         self.surface = surface
         self.name = surface.name
-        self.is_compact = compact
         self.geometry = {"vertices": self.surface.vertices.array,
                          "triangles": self.surface.triangles.array}
 

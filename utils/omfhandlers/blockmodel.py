@@ -5,9 +5,9 @@ import utils.pygltf.tools as gltf
 
 
 class BlockModelHandler:
-    def __init__(self, bm, filter=None, compact=False) -> None:
+    def __init__(self, bm, filter_condition=None, compact=False) -> None:
         self.bm = bm
-        self.filter = filter
+        self.filter = filter_condition
         self.is_compact = compact
         self.name = bm.name
         self._bm_dataframe = self._bm_to_pandas_dataframe()
