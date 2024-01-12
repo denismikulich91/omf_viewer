@@ -302,7 +302,7 @@ class Accessor(Object):
         self.sparse = kwargs.get("sparse")
     def togltf(self):
         result = super().togltf()
-        result["bufferView"] = self.bufferView.key
+        result["bufferView"] = self.bufferView
         result["componentType"] = self.componentType.value
         result["count"] = self.count
         result["type"] = self.type.value

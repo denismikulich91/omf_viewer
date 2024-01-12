@@ -50,6 +50,25 @@ class SurfaceHandler:
 
         return vertex_data, index_data
 
+    # def _prepare_gltf_data(self):
+    #     # Extracting vertex positions, normals, and indices
+    #     vertexes = self.geometry["vertices"]
+    #     indexes = self.geometry["triangles"].ravel()
+    #
+    #     # Calculating normals
+    #     normals = gltf.calculate_normals(vertexes, indexes)
+    #
+    #     # Creating separate arrays for positions, normals, and colors
+    #     position_data = np.array(vertexes, dtype=np.float32)
+    #     normal_data = np.array([gltf.normalize_vector(np.array(normal)) for normal in normals], dtype=np.float32)
+    #     color_data = np.array([(1, 1, 0, 1)] * len(vertexes), dtype=np.float32)
+    #     # Flattening the arrays and concatenating them
+    #     # This creates a single buffer with non-interleaved data
+    #     vertex_data = [position_data, normal_data, color_data]
+    #     # Creating index data
+    #     index_data = np.array(indexes, dtype=np.uint16)
+    #     return vertex_data, index_data
+
     def create_gltf_from_dataset(self, location):
 
         vertex_data, index_data = self._prepare_gltf_data()
@@ -57,7 +76,7 @@ class SurfaceHandler:
         gltf_path = f"{location}.gltf"
         bin_path = f"{location}.bin"
 
-        document, buffers = gltf.numpy_to_gltf(vertex_data, index_data, gltf_path, bin_path, "TRIANGLES")
+        document, buffers = gltf.numpy_to_gltf(vertex_data, index_data, gltf_path, bin_path)
 
         gltf.save(gltf_path, bin_path, document, buffers)
 

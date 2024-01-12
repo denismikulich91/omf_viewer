@@ -49,16 +49,17 @@ def subtype(dtype):
         return dtype, shape
 
 
-def generate_structured_array_accessors(data, buffer_views, offset=None, count=None, name=None):
+def generate_structured_array_accessors(data, buffer_number, offset=None, count=None, name=None):
     name = "{key}" if name is None else name
     count = len(data) if count is None else count
+    
     result = {}
     for key, value in data.dtype.fields.items():
         dtype, delta = value
         dtype, shape = subtype(dtype)
+        print(delta)
         accessorType, componentType = from_np_type(dtype, shape)
-        accessor = gltf.Accessor(buffer_views[key], offset, count, accessorType, componentType,
-                                 name=name.format(key=key))
+        accessor = gltf.Accessor(buffer_number, delta, count, accessorType, componentType, name=name.format(key=key))
         attribute = ATTRIBUTE_BY_NAME.get(key)
         if attribute == gltf.Attribute.POSITION:
             accessor.max = np.amax(data[key], axis=0).tolist()
@@ -66,27 +67,25 @@ def generate_structured_array_accessors(data, buffer_views, offset=None, count=N
         result[attribute] = accessor
     return result
 
-
-def generate_array_accessor(data, buffer_view, offset=None, count=None, name=None):
+def generate_array_accessor(data, buffer_number, offset=None, count=None, name=None):
     count = len(data) if count is None else count
     dtype, shape = data.dtype, data.shape
     accessorType, componentType = from_np_type(dtype, shape[1:])
-    result = gltf.Accessor(buffer_view, offset, count, accessorType, componentType, name=name)
+    result = gltf.Accessor(buffer_number, offset, count, accessorType, componentType, name=name)
     return result
 
 
+
 def generate_structured_array_buffer_views(data, buffer, target, offset=None, name=None):
-    name = "{key}" if name is None else name
+    # name = "{key}" if name is None else name
     offset = 0 if offset is None else offset
     length = data.nbytes
     stride = data.itemsize
     result = {}
-    for key, value in data.dtype.fields.items():
-        dtype, delta = value
-        dtype, shape = subtype(dtype)
-        accessorType, componentType = from_np_type(dtype, shape)
-        buffer_view = gltf.BufferView(buffer, offset + delta, length - delta, stride, target, name=name.format(key=key))
-        result[key] = buffer_view
+    key = "verticies"
+    buffer_view = gltf.BufferView(buffer, offset, length, stride, target, name=name.format(key=key))
+    result[key] = buffer_view
+    print(result)
     return result
 
 
@@ -99,7 +98,8 @@ def generate_array_buffer_view(data, buffer, target, offset=None, name=None):
 
 
 def byteLength(buffers):
-    return sum(map(lambda buffer: buffer.nbytes, buffers))
+    for buffer in buffers:
+        return sum(map(lambda buffer: buffer.nbytes, buffers))
 
 
 def normalize_vector(vector):
@@ -142,38 +142,35 @@ def calculate_normals(vertices, indices):
     return normals
 
 
-def numpy_to_gltf(vertex_data, index_data, gltf_path, bin_path, data_type):
+def numpy_to_gltf(vertex_data, index_data, gltf_path, bin_path):
     mesh = gltf.Mesh([], name="Default Mesh")
-
+    
     document = gltf.Document.from_mesh(mesh)
     buffers = [vertex_data, index_data]
-
-    buffer = gltf.Buffer(byteLength(buffers), uri=os.path.relpath(bin_path, os.path.dirname(gltf_path)),
-                         name="Default Buffer")
-
+    buffer = gltf.Buffer(byteLength(buffers), uri=os.path.relpath(bin_path, os.path.dirname(gltf_path)), name="Default Buffer")
+    
     document.add_buffer(buffer)
-
+    
     offset = 0
-    vertex_buffer_views = generate_structured_array_buffer_views(vertex_data, buffer, gltf.BufferTarget.ARRAY_BUFFER,
-                                                                 offset=offset, name="{key} Buffer View")
+    vertex_buffer_views = generate_structured_array_buffer_views(vertex_data, buffer, gltf.BufferTarget.ARRAY_BUFFER, offset=offset, name="{key} Buffer View")
     offset += vertex_data.nbytes
-    index_buffer_view = generate_array_buffer_view(index_data, buffer, gltf.BufferTarget.ELEMENT_ARRAY_BUFFER,
-                                                   offset=offset, name="Index Buffer View")
+
+    index_buffer_view = generate_array_buffer_view(index_data, buffer, gltf.BufferTarget.ELEMENT_ARRAY_BUFFER, offset=offset, name="Index Buffer View")
     offset += index_data.nbytes
-
-    vertex_accessors = generate_structured_array_accessors(vertex_data, vertex_buffer_views, name="{key} Accessor")
-    index_accessor = generate_array_accessor(index_data, index_buffer_view, name="Index Accessor")
-
-    primitive = gltf.Primitive(vertex_accessors, index_accessor, None, gltf.PrimitiveMode[data_type])
-
+    
+    vertex_accessors = generate_structured_array_accessors(vertex_data, buffer_number=0, name="{key} Accessor")
+    index_accessor = generate_array_accessor(index_data, buffer_number=1, name="Index Accessor")
+    
+    primitive = gltf.Primitive(vertex_accessors, index_accessor, None, gltf.PrimitiveMode.TRIANGLES)
+    
     document.add_buffer_views(vertex_buffer_views.values())
     document.add_buffer_view(index_buffer_view)
-
+    
     document.add_accessors(vertex_accessors.values())
     document.add_accessor(index_accessor)
-
+    
     mesh.primitives.append(primitive)
-
+    
     return document, buffers
 
 

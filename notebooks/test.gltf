@@ -1,0 +1,116 @@
+{
+  "asset": {
+    "version": "2.0"
+  },
+  "buffers": [
+    {
+      "name": "Default Buffer",
+      "byteLength": 1742376,
+      "uri": "test.bin"
+    }
+  ],
+  "bufferViews": [
+    {
+      "name": "position Buffer View",
+      "buffer": 0,
+      "byteLength": 1346760,
+      "byteOffset": 0,
+      "byteStride": 40,
+      "target": 34962
+    },
+    {
+      "name": "normal Buffer View",
+      "buffer": 0,
+      "byteLength": 1346748,
+      "byteOffset": 12,
+      "byteStride": 40,
+      "target": 34962
+    },
+    {
+      "name": "color Buffer View",
+      "buffer": 0,
+      "byteLength": 1346736,
+      "byteOffset": 24,
+      "byteStride": 40,
+      "target": 34962
+    },
+    {
+      "name": "Index Buffer View",
+      "buffer": 0,
+      "byteLength": 395616,
+      "byteOffset": 1346760,
+      "target": 34963
+    }
+  ],
+  "accessors": [
+    {
+      "name": "position Accessor",
+      "bufferView": 0,
+      "componentType": 5126,
+      "count": 33669,
+      "type": "VEC3",
+      "max": [
+        447059.625,
+        495059.84375,
+        3555.941650390625
+      ],
+      "min": [
+        443941.09375,
+        491941.53125,
+        2383.50341796875
+      ]
+    },
+    {
+      "name": "normal Accessor",
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 33669,
+      "type": "VEC3"
+    },
+    {
+      "name": "color Accessor",
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 33669,
+      "type": "VEC4"
+    },
+    {
+      "name": "Index Accessor",
+      "bufferView": 3,
+      "componentType": 5123,
+      "count": 197808,
+      "type": "SCALAR"
+    }
+  ],
+  "meshes": [
+    {
+      "name": "Default Mesh",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 0,
+            "NORMAL": 1,
+            "COLOR_0": 2
+          },
+          "indices": 3,
+          "mode": 4
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "name": "Default Node",
+      "mesh": 0
+    }
+  ],
+  "scenes": [
+    {
+      "name": "Default Scene",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "scene": 0
+}
